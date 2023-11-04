@@ -1,0 +1,80 @@
+#FIRST METHOD FOR SPEECH TO TEXT USING NLP MODULES
+from google.colab import files
+uploaded = files.upload()
+!pip install SpeechRecognition
+!pip install pydub
+!apt-get install -y portaudio19-dev
+!pip install PyAudio
+import ipywidgets as widgets
+from IPython.display import display
+import speech_recognition as sr
+
+# Create the widgets
+record_button = widgets.Button(description="Record Audio")
+result_text = widgets.Output()
+
+def on_record_button_click(b):
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Recording audio...")
+        audio = recognizer.listen(source)
+        print("Audio recording complete. Transcribing...")
+
+        try:
+            text = recognizer.recognize_google(audio)
+            with result_text:
+                result_text.clear_output()
+                print("Transcription: ", text)
+        except sr.UnknownValueError:
+            with result_text:
+                result_text.clear_output()
+                print("Could not understand audio")
+        except sr.RequestError as e:
+            with result_text:
+                result_text.clear_output()
+                print("Request error; {0}".format(e))
+
+record_button.on_click(on_record_button_click)
+
+# Display the widgets
+display(record_button)
+display(result_text)
+
+
+
+
+
+
+
+
+
+
+#SECOND METHOD THROUGH WHICH ANYONE CAN CONVERT SPEECH TO TEXT USING NLP MODULES e.g. AudioSegment, pydub
+from pydub import AudioSegment
+audio = AudioSegment.from_ogg('/content/WhatsApp Audio 2023-11-03 at 13.30.34.ogg')
+audio.export('/content/converted1_audio.wav', format='wav')
+
+import speech_recognition as sr
+
+def audio_to_text(audio_file_path):
+    recognizer = sr.Recognizer()
+
+    with sr.AudioFile(audio_file_path) as source:
+        audio_data = recognizer.record(source)
+
+    try:
+        transcribed_text = recognizer.recognize_google(audio_data)
+        return transcribed_text
+    except sr.UnknownValueError:
+        return "Google Web Speech API could not understand the audio"
+    except sr.RequestError as e:
+        return "Could not request results from Google Web Speech API; {0}".format(e)
+
+# Provide the path to your audio file as an argument when calling the function
+audio_file_path = '/content/converted1_audio.wav'  # Replace with the actual path to your audio file
+
+transcribed_text = audio_to_text(audio_file_path)
+
+if transcribed_text:
+    print("Transcribed Text:")
+    print(transcribed_text)
